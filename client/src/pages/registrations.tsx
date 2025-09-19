@@ -8,7 +8,7 @@ export default function Registrations() {
   const { data: recentRegistrations = [], isLoading } = useQuery({
     queryKey: ["/api/student-registrations"],
     queryFn: () => api.studentRegistrations.getAll(),
-    select: (data) => data.slice(-10).reverse(), // Get 10 most recent
+    select: (data) => data.slice(-10).reverse(),
   });
 
   return (

@@ -14,7 +14,7 @@ export default function Dashboard() {
     useQuery({
       queryKey: ["/api/student-registrations"],
       queryFn: () => api.studentRegistrations.getAll(),
-      select: (data) => data.slice(-5).reverse(), // Get 5 most recent
+      select: (data) => data.slice(-5).reverse(),
     });
 
   if (isLoading) {
