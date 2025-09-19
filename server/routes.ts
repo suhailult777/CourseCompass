@@ -1,15 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { 
-  insertCourseTypeSchema, 
-  insertCourseSchema, 
-  insertCourseOfferingSchema, 
-  insertStudentRegistrationSchema 
+import {
+  insertCourseTypeSchema,
+  insertCourseSchema,
+  insertCourseOfferingSchema,
+  insertStudentRegistrationSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Course Types routes
   app.get("/api/course-types", async (req, res) => {
     try {
       const courseTypes = await storage.getCourseTypes();
@@ -32,7 +31,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/course-types/:id", async (req, res) => {
     try {
       const validated = insertCourseTypeSchema.partial().parse(req.body);
-      const courseType = await storage.updateCourseType(req.params.id, validated);
+      const courseType = await storage.updateCourseType(
+        req.params.id,
+        validated
+      );
       if (!courseType) {
         return res.status(404).json({ message: "Course type not found" });
       }
@@ -54,7 +56,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Courses routes
   app.get("/api/courses", async (req, res) => {
     try {
       const courses = await storage.getCourses();
@@ -99,7 +100,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Course Offerings routes
   app.get("/api/course-offerings", async (req, res) => {
     try {
       const offerings = await storage.getCourseOfferingsWithDetails();
@@ -111,7 +111,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/course-offerings/:id", async (req, res) => {
     try {
-      const offering = await storage.getCourseOfferingWithDetails(req.params.id);
+      const offering = await storage.getCourseOfferingWithDetails(
+        req.params.id
+      );
       if (!offering) {
         return res.status(404).json({ message: "Course offering not found" });
       }
@@ -134,7 +136,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/course-offerings/:id", async (req, res) => {
     try {
       const validated = insertCourseOfferingSchema.partial().parse(req.body);
-      const offering = await storage.updateCourseOffering(req.params.id, validated);
+      const offering = await storage.updateCourseOffering(
+        req.params.id,
+        validated
+      );
       if (!offering) {
         return res.status(404).json({ message: "Course offering not found" });
       }
@@ -156,24 +161,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Student Registrations routes
   app.get("/api/student-registrations", async (req, res) => {
     try {
       const registrations = await storage.getStudentRegistrationsWithDetails();
       res.json(registrations);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch student registrations" });
+      res
+        .status(500)
+        .json({ message: "Failed to fetch student registrations" });
     }
   });
 
-  app.get("/api/student-registrations/by-offering/:offeringId", async (req, res) => {
-    try {
-      const registrations = await storage.getStudentRegistrationsByOffering(req.params.offeringId);
-      res.json(registrations);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch student registrations" });
+  app.get(
+    "/api/student-registrations/by-offering/:offeringId",
+    async (req, res) => {
+      try {
+        const registrations = await storage.getStudentRegistrationsByOffering(
+          req.params.offeringId
+        );
+        res.json(registrations);
+      } catch (error) {
+        res
+          .status(500)
+          .json({ message: "Failed to fetch student registrations" });
+      }
     }
-  });
+  );
 
   app.post("/api/student-registrations", async (req, res) => {
     try {
@@ -181,7 +194,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const registration = await storage.createStudentRegistration(validated);
       res.status(201).json(registration);
     } catch (error: any) {
-      res.status(400).json({ message: error.message || "Invalid registration data" });
+      res
+        .status(400)
+        .json({ message: error.message || "Invalid registration data" });
     }
   });
 
@@ -197,7 +212,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stats route
   app.get("/api/stats", async (req, res) => {
     try {
       const stats = await storage.getStats();

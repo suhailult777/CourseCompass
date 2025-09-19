@@ -1,49 +1,61 @@
-import { 
-  type CourseType, 
-  type Course, 
-  type CourseOffering, 
+import {
+  type CourseType,
+  type Course,
+  type CourseOffering,
   type StudentRegistration,
-  type InsertCourseType, 
-  type InsertCourse, 
-  type InsertCourseOffering, 
+  type InsertCourseType,
+  type InsertCourse,
+  type InsertCourseOffering,
   type InsertStudentRegistration,
   type CourseOfferingWithDetails,
-  type StudentRegistrationWithDetails
+  type StudentRegistrationWithDetails,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // Course Types
   getCourseTypes(): Promise<CourseType[]>;
   getCourseType(id: string): Promise<CourseType | undefined>;
   createCourseType(courseType: InsertCourseType): Promise<CourseType>;
-  updateCourseType(id: string, courseType: Partial<InsertCourseType>): Promise<CourseType | undefined>;
+  updateCourseType(
+    id: string,
+    courseType: Partial<InsertCourseType>
+  ): Promise<CourseType | undefined>;
   deleteCourseType(id: string): Promise<boolean>;
 
-  // Courses
   getCourses(): Promise<Course[]>;
   getCourse(id: string): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
-  updateCourse(id: string, course: Partial<InsertCourse>): Promise<Course | undefined>;
+  updateCourse(
+    id: string,
+    course: Partial<InsertCourse>
+  ): Promise<Course | undefined>;
   deleteCourse(id: string): Promise<boolean>;
 
-  // Course Offerings
   getCourseOfferings(): Promise<CourseOffering[]>;
   getCourseOfferingsWithDetails(): Promise<CourseOfferingWithDetails[]>;
   getCourseOffering(id: string): Promise<CourseOffering | undefined>;
-  getCourseOfferingWithDetails(id: string): Promise<CourseOfferingWithDetails | undefined>;
+  getCourseOfferingWithDetails(
+    id: string
+  ): Promise<CourseOfferingWithDetails | undefined>;
   createCourseOffering(offering: InsertCourseOffering): Promise<CourseOffering>;
-  updateCourseOffering(id: string, offering: Partial<InsertCourseOffering>): Promise<CourseOffering | undefined>;
+  updateCourseOffering(
+    id: string,
+    offering: Partial<InsertCourseOffering>
+  ): Promise<CourseOffering | undefined>;
   deleteCourseOffering(id: string): Promise<boolean>;
 
-  // Student Registrations
   getStudentRegistrations(): Promise<StudentRegistration[]>;
-  getStudentRegistrationsWithDetails(): Promise<StudentRegistrationWithDetails[]>;
-  getStudentRegistrationsByOffering(offeringId: string): Promise<StudentRegistrationWithDetails[]>;
-  createStudentRegistration(registration: InsertStudentRegistration): Promise<StudentRegistration>;
+  getStudentRegistrationsWithDetails(): Promise<
+    StudentRegistrationWithDetails[]
+  >;
+  getStudentRegistrationsByOffering(
+    offeringId: string
+  ): Promise<StudentRegistrationWithDetails[]>;
+  createStudentRegistration(
+    registration: InsertStudentRegistration
+  ): Promise<StudentRegistration>;
   deleteStudentRegistration(id: string): Promise<boolean>;
 
-  // Stats
   getStats(): Promise<{
     courseTypesCount: number;
     coursesCount: number;
@@ -59,23 +71,59 @@ export class MemStorage implements IStorage {
   private studentRegistrations: Map<string, StudentRegistration> = new Map();
 
   constructor() {
-    // Initialize with some sample data
-    this.initializeData();
+    this.initializeData().catch(console.error);
   }
 
-  private initializeData() {
-    // Course Types
-    const individual = this.createCourseType({ name: "Individual" });
-    const group = this.createCourseType({ name: "Group" });
-    const special = this.createCourseType({ name: "Special" });
+  private async initializeData() {
+    const individual = await this.createCourseType({ name: "Individual" });
+    const group = await this.createCourseType({ name: "Group" });
+    const special = await this.createCourseType({ name: "Special" });
 
-    // Courses
-    const english = this.createCourse({ name: "English Grammar", language: "English" });
-    const hindi = this.createCourse({ name: "Hindi Literature", language: "Hindi" });
-    const urdu = this.createCourse({ name: "Urdu Poetry", language: "Urdu" });
+    const english = await this.createCourse({
+      name: "English Grammar",
+      language: "English",
+    });
+    const hindi = await this.createCourse({
+      name: "Hindi Literature",
+      language: "Hindi",
+    });
+    const urdu = await this.createCourse({
+      name: "Urdu Poetry",
+      language: "Urdu",
+    });
+
+    await this.createCourseOffering({
+      courseId: english.id,
+      courseTypeId: individual.id,
+      maxCapacity: 10,
+      status: "active",
+    });
+    await this.createCourseOffering({
+      courseId: english.id,
+      courseTypeId: group.id,
+      maxCapacity: 20,
+      status: "active",
+    });
+    await this.createCourseOffering({
+      courseId: hindi.id,
+      courseTypeId: individual.id,
+      maxCapacity: 15,
+      status: "active",
+    });
+    await this.createCourseOffering({
+      courseId: hindi.id,
+      courseTypeId: group.id,
+      maxCapacity: 25,
+      status: "active",
+    });
+    await this.createCourseOffering({
+      courseId: urdu.id,
+      courseTypeId: special.id,
+      maxCapacity: 12,
+      status: "active",
+    });
   }
 
-  // Course Types
   async getCourseTypes(): Promise<CourseType[]> {
     return Array.from(this.courseTypes.values());
   }
@@ -84,7 +132,9 @@ export class MemStorage implements IStorage {
     return this.courseTypes.get(id);
   }
 
-  async createCourseType(insertCourseType: InsertCourseType): Promise<CourseType> {
+  async createCourseType(
+    insertCourseType: InsertCourseType
+  ): Promise<CourseType> {
     const id = randomUUID();
     const courseType: CourseType = {
       ...insertCourseType,
@@ -95,7 +145,10 @@ export class MemStorage implements IStorage {
     return courseType;
   }
 
-  async updateCourseType(id: string, updates: Partial<InsertCourseType>): Promise<CourseType | undefined> {
+  async updateCourseType(
+    id: string,
+    updates: Partial<InsertCourseType>
+  ): Promise<CourseType | undefined> {
     const existing = this.courseTypes.get(id);
     if (!existing) return undefined;
 
@@ -108,7 +161,6 @@ export class MemStorage implements IStorage {
     return this.courseTypes.delete(id);
   }
 
-  // Courses
   async getCourses(): Promise<Course[]> {
     return Array.from(this.courses.values());
   }
@@ -128,7 +180,10 @@ export class MemStorage implements IStorage {
     return course;
   }
 
-  async updateCourse(id: string, updates: Partial<InsertCourse>): Promise<Course | undefined> {
+  async updateCourse(
+    id: string,
+    updates: Partial<InsertCourse>
+  ): Promise<Course | undefined> {
     const existing = this.courses.get(id);
     if (!existing) return undefined;
 
@@ -141,7 +196,6 @@ export class MemStorage implements IStorage {
     return this.courses.delete(id);
   }
 
-  // Course Offerings
   async getCourseOfferings(): Promise<CourseOffering[]> {
     return Array.from(this.courseOfferings.values());
   }
@@ -153,7 +207,7 @@ export class MemStorage implements IStorage {
     for (const offering of offerings) {
       const course = this.courses.get(offering.courseId);
       const courseType = this.courseTypes.get(offering.courseTypeId);
-      
+
       if (course && courseType) {
         offeringsWithDetails.push({
           ...offering,
@@ -170,13 +224,15 @@ export class MemStorage implements IStorage {
     return this.courseOfferings.get(id);
   }
 
-  async getCourseOfferingWithDetails(id: string): Promise<CourseOfferingWithDetails | undefined> {
+  async getCourseOfferingWithDetails(
+    id: string
+  ): Promise<CourseOfferingWithDetails | undefined> {
     const offering = this.courseOfferings.get(id);
     if (!offering) return undefined;
 
     const course = this.courses.get(offering.courseId);
     const courseType = this.courseTypes.get(offering.courseTypeId);
-    
+
     if (!course || !courseType) return undefined;
 
     return {
@@ -186,7 +242,9 @@ export class MemStorage implements IStorage {
     };
   }
 
-  async createCourseOffering(insertOffering: InsertCourseOffering): Promise<CourseOffering> {
+  async createCourseOffering(
+    insertOffering: InsertCourseOffering
+  ): Promise<CourseOffering> {
     const id = randomUUID();
     const offering: CourseOffering = {
       ...insertOffering,
@@ -200,7 +258,10 @@ export class MemStorage implements IStorage {
     return offering;
   }
 
-  async updateCourseOffering(id: string, updates: Partial<InsertCourseOffering>): Promise<CourseOffering | undefined> {
+  async updateCourseOffering(
+    id: string,
+    updates: Partial<InsertCourseOffering>
+  ): Promise<CourseOffering | undefined> {
     const existing = this.courseOfferings.get(id);
     if (!existing) return undefined;
 
@@ -213,18 +274,21 @@ export class MemStorage implements IStorage {
     return this.courseOfferings.delete(id);
   }
 
-  // Student Registrations
   async getStudentRegistrations(): Promise<StudentRegistration[]> {
     return Array.from(this.studentRegistrations.values());
   }
 
-  async getStudentRegistrationsWithDetails(): Promise<StudentRegistrationWithDetails[]> {
+  async getStudentRegistrationsWithDetails(): Promise<
+    StudentRegistrationWithDetails[]
+  > {
     const registrations = Array.from(this.studentRegistrations.values());
     const registrationsWithDetails: StudentRegistrationWithDetails[] = [];
 
     for (const registration of registrations) {
-      const offeringWithDetails = await this.getCourseOfferingWithDetails(registration.courseOfferingId);
-      
+      const offeringWithDetails = await this.getCourseOfferingWithDetails(
+        registration.courseOfferingId
+      );
+
       if (offeringWithDetails) {
         registrationsWithDetails.push({
           ...registration,
@@ -236,22 +300,32 @@ export class MemStorage implements IStorage {
     return registrationsWithDetails;
   }
 
-  async getStudentRegistrationsByOffering(offeringId: string): Promise<StudentRegistrationWithDetails[]> {
+  async getStudentRegistrationsByOffering(
+    offeringId: string
+  ): Promise<StudentRegistrationWithDetails[]> {
     const allRegistrations = await this.getStudentRegistrationsWithDetails();
-    return allRegistrations.filter(reg => reg.courseOfferingId === offeringId);
+    return allRegistrations.filter(
+      (reg) => reg.courseOfferingId === offeringId
+    );
   }
 
-  async createStudentRegistration(insertRegistration: InsertStudentRegistration): Promise<StudentRegistration> {
+  async createStudentRegistration(
+    insertRegistration: InsertStudentRegistration
+  ): Promise<StudentRegistration> {
     const id = randomUUID();
-    
-    // Check if offering exists and has capacity
-    const offering = this.courseOfferings.get(insertRegistration.courseOfferingId);
+
+    const offering = this.courseOfferings.get(
+      insertRegistration.courseOfferingId
+    );
     if (!offering) {
       throw new Error("Course offering not found");
     }
 
-    const status = offering.currentEnrollment < offering.maxCapacity ? "confirmed" : "waitlisted";
-    
+    const status =
+      offering.currentEnrollment < offering.maxCapacity
+        ? "confirmed"
+        : "waitlisted";
+
     const registration: StudentRegistration = {
       ...insertRegistration,
       id,
@@ -262,10 +336,10 @@ export class MemStorage implements IStorage {
 
     this.studentRegistrations.set(id, registration);
 
-    // Update offering enrollment count if confirmed
     if (status === "confirmed") {
       offering.currentEnrollment += 1;
-      offering.status = offering.currentEnrollment >= offering.maxCapacity ? "full" : "active";
+      offering.status =
+        offering.currentEnrollment >= offering.maxCapacity ? "full" : "active";
       this.courseOfferings.set(offering.id, offering);
     }
 
@@ -277,13 +351,18 @@ export class MemStorage implements IStorage {
     if (!registration) return false;
 
     const deleted = this.studentRegistrations.delete(id);
-    
+
     if (deleted && registration.status === "confirmed") {
-      // Update offering enrollment count
       const offering = this.courseOfferings.get(registration.courseOfferingId);
       if (offering) {
-        offering.currentEnrollment = Math.max(0, offering.currentEnrollment - 1);
-        offering.status = offering.currentEnrollment >= offering.maxCapacity ? "full" : "active";
+        offering.currentEnrollment = Math.max(
+          0,
+          offering.currentEnrollment - 1
+        );
+        offering.status =
+          offering.currentEnrollment >= offering.maxCapacity
+            ? "full"
+            : "active";
         this.courseOfferings.set(offering.id, offering);
       }
     }
@@ -297,8 +376,10 @@ export class MemStorage implements IStorage {
     activeOfferingsCount: number;
     totalStudentsCount: number;
   }> {
-    const activeOfferings = Array.from(this.courseOfferings.values()).filter(o => o.status === "active" || o.status === "full");
-    
+    const activeOfferings = Array.from(this.courseOfferings.values()).filter(
+      (o) => o.status === "active" || o.status === "full"
+    );
+
     return {
       courseTypesCount: this.courseTypes.size,
       coursesCount: this.courses.size,

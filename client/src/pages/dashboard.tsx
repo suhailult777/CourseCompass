@@ -10,11 +10,12 @@ export default function Dashboard() {
     queryFn: () => api.stats.get(),
   });
 
-  const { data: recentRegistrations, isLoading: registrationsLoading } = useQuery({
-    queryKey: ["/api/student-registrations"],
-    queryFn: () => api.studentRegistrations.getAll(),
-    select: (data) => data.slice(-5).reverse(), // Get 5 most recent
-  });
+  const { data: recentRegistrations, isLoading: registrationsLoading } =
+    useQuery({
+      queryKey: ["/api/student-registrations"],
+      queryFn: () => api.studentRegistrations.getAll(),
+      select: (data) => data.slice(-5).reverse(), // Get 5 most recent
+    });
 
   if (isLoading) {
     return (
@@ -34,7 +35,6 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card data-testid="card-course-types">
           <CardContent className="p-6">
@@ -43,8 +43,13 @@ export default function Dashboard() {
                 <List className="text-blue-600 text-xl" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Course Types</p>
-                <p className="text-2xl font-bold text-foreground" data-testid="count-course-types">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Course Types
+                </p>
+                <p
+                  className="text-2xl font-bold text-foreground"
+                  data-testid="count-course-types"
+                >
                   {stats?.courseTypesCount ?? 0}
                 </p>
               </div>
@@ -59,8 +64,13 @@ export default function Dashboard() {
                 <Book className="text-green-600 text-xl" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Total Courses</p>
-                <p className="text-2xl font-bold text-foreground" data-testid="count-courses">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Courses
+                </p>
+                <p
+                  className="text-2xl font-bold text-foreground"
+                  data-testid="count-courses"
+                >
                   {stats?.coursesCount ?? 0}
                 </p>
               </div>
@@ -75,8 +85,13 @@ export default function Dashboard() {
                 <Calendar className="text-purple-600 text-xl" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Active Offerings</p>
-                <p className="text-2xl font-bold text-foreground" data-testid="count-active-offerings">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Active Offerings
+                </p>
+                <p
+                  className="text-2xl font-bold text-foreground"
+                  data-testid="count-active-offerings"
+                >
                   {stats?.activeOfferingsCount ?? 0}
                 </p>
               </div>
@@ -91,8 +106,13 @@ export default function Dashboard() {
                 <Users className="text-orange-600 text-xl" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Total Students</p>
-                <p className="text-2xl font-bold text-foreground" data-testid="count-students">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Students
+                </p>
+                <p
+                  className="text-2xl font-bold text-foreground"
+                  data-testid="count-students"
+                >
                   {stats?.totalStudentsCount ?? 0}
                 </p>
               </div>
@@ -101,7 +121,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent Registrations */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Registrations</CardTitle>
@@ -123,25 +142,40 @@ export default function Dashboard() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-medium text-foreground" data-testid="student-name">
+                      <h4
+                        className="font-medium text-foreground"
+                        data-testid="student-name"
+                      >
                         {registration.studentName}
                       </h4>
-                      <p className="text-sm text-muted-foreground" data-testid="student-email">
+                      <p
+                        className="text-sm text-muted-foreground"
+                        data-testid="student-email"
+                      >
                         {registration.email}
                       </p>
-                      <p className="text-sm text-muted-foreground" data-testid="course-info">
-                        {registration.courseOffering.courseType.name} - {registration.courseOffering.course.name}
+                      <p
+                        className="text-sm text-muted-foreground"
+                        data-testid="course-info"
+                      >
+                        {registration.courseOffering.courseType.name} -{" "}
+                        {registration.courseOffering.course.name}
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-muted-foreground" data-testid="registration-date">
-                        {new Date(registration.registrationDate).toLocaleDateString()}
+                      <span
+                        className="text-xs text-muted-foreground"
+                        data-testid="registration-date"
+                      >
+                        {new Date(
+                          registration.registrationDate
+                        ).toLocaleDateString()}
                       </span>
                       <div className="mt-1">
-                        <span 
+                        <span
                           className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            registration.status === "confirmed" 
-                              ? "bg-green-100 text-green-800" 
+                            registration.status === "confirmed"
+                              ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                           data-testid="registration-status"
@@ -155,7 +189,10 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-8" data-testid="no-registrations">
+            <p
+              className="text-muted-foreground text-center py-8"
+              data-testid="no-registrations"
+            >
               No registrations yet.
             </p>
           )}

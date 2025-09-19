@@ -150,7 +150,6 @@ export default function StudentRegistrationForm() {
               <SelectValue placeholder="Select course type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Course Types</SelectItem>
               {courseTypes.map((type) => (
                 <SelectItem key={type.id} value={type.id}>
                   {type.name}
